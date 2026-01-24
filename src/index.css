@@ -101,6 +101,110 @@
   .glow-blue {
     box-shadow: var(--shadow-glow-blue);
   }
+
+  /* Neon glow effects */
+  .neon-border {
+    position: relative;
+  }
+
+  .neon-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-primary);
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .neon-border:hover::before {
+    opacity: 1;
+  }
+
+  .neon-glow {
+    transition: all 0.3s ease;
+  }
+
+  .neon-glow:hover {
+    box-shadow: 
+      0 0 15px hsla(145, 80%, 45%, 0.3),
+      0 0 30px hsla(145, 80%, 45%, 0.2),
+      0 0 45px hsla(200, 90%, 50%, 0.1);
+  }
+
+  .neon-text-glow {
+    transition: text-shadow 0.3s ease;
+  }
+
+  .neon-text-glow:hover {
+    text-shadow: 
+      0 0 10px hsla(145, 80%, 45%, 0.7),
+      0 0 20px hsla(145, 80%, 45%, 0.5),
+      0 0 30px hsla(200, 90%, 50%, 0.3);
+  }
+
+  /* Animated underline with neon */
+  .neon-underline {
+    position: relative;
+  }
+
+  .neon-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    box-shadow: 0 0 10px hsla(145, 80%, 45%, 0.5);
+    transition: width 0.3s ease;
+  }
+
+  .neon-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Interactive card effect */
+  .interactive-card {
+    @apply transition-all duration-300;
+    transform-style: preserve-3d;
+  }
+
+  .interactive-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 10px 20px -10px hsla(145, 80%, 45%, 0.3),
+      0 20px 40px -20px hsla(0, 0%, 0%, 0.3);
+  }
+
+  /* Pulse ring animation */
+  .pulse-ring {
+    position: relative;
+  }
+
+  .pulse-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 0 0 hsla(145, 80%, 45%, 0.4);
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsla(145, 80%, 45%, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 10px hsla(145, 80%, 45%, 0);
+    }
+  }
 }
 
 @layer utilities {
@@ -110,6 +214,14 @@
 
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  .animate-neon-flicker {
+    animation: neon-flicker 3s ease-in-out infinite;
   }
 
   @keyframes float {
@@ -127,6 +239,52 @@
     }
     50% {
       box-shadow: 0 0 40px hsla(145, 80%, 45%, 0.5);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
+  @keyframes neon-flicker {
+    0%, 100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    50% {
+      opacity: 0.95;
+      filter: brightness(1.1);
+    }
+    52% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    54% {
+      opacity: 0.98;
+      filter: brightness(1.05);
+    }
+  }
+
+  /* Gradient border animation */
+  .gradient-border-animated {
+    background: linear-gradient(var(--background), var(--background)) padding-box,
+                linear-gradient(135deg, hsl(145 80% 45%), hsl(200 90% 50%), hsl(145 80% 45%)) border-box;
+    border: 2px solid transparent;
+    background-size: 100% 100%, 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%, 0% 50%;
+    }
+    50% {
+      background-position: 0% 50%, 100% 50%;
     }
   }
 }

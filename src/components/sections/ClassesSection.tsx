@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, Users, MapPin } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { GlowingCard } from "@/components/effects/GlowingCard";
+import { NeonText } from "@/components/effects/NeonText";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -26,6 +29,23 @@ const demoClasses = [
   { id: 14, name: "Body Combat", instructor: "Diego", time: "11:00", duration: 55, capacity: 22, enrolled: 18, day: 6, room: "Sala A" },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 15 },
+  },
+};
+
 export const ClassesSection = ({ isAdmin = false }: ClassesSectionProps) => {
   const today = new Date();
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(today, { weekStartsOn: 1 }));
@@ -40,30 +60,50 @@ export const ClassesSection = ({ isAdmin = false }: ClassesSectionProps) => {
   const classesForDay = demoClasses.filter((c) => c.day === (selectedDayIndex > 0 ? selectedDayIndex : 1));
 
   return (
-    <section className="py-20 px-4 min-h-screen" id="classes">
-      <div className="container mx-auto max-w-6xl">
+    <section className="py-20 px-4 min-h-screen relative overflow-hidden" id="classes">
+      {/* Ambient glow */}
+      <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[120px]" />
+      <div className="absolute bottom-1/3 left-0 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[100px]" />
+
+      <div className="container mx-auto max-w-6xl relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">
-            Calendario de <span className="gradient-text">Clases</span>
+            Calendario de <NeonText>Clases</NeonText>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Explora nuestras clases grupales y reserva tu lugar
           </p>
-        </div>
+        </motion.div>
 
         {/* Week Navigation */}
-        <div className="glass-card rounded-2xl p-6 mb-8">
+        <motion.div
+          className="glass-card rounded-2xl p-6 mb-8 neon-border"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" size="icon" onClick={prevWeek}>
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <h3 className="font-display text-xl font-bold">
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <Button variant="ghost" size="icon" onClick={prevWeek} className="neon-glow">
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+            </motion.div>
+            <h3 className="font-display text-xl font-bold neon-text-glow">
               {format(currentWeekStart, "MMMM yyyy", { locale: es })}
             </h3>
-            <Button variant="ghost" size="icon" onClick={nextWeek}>
-              <ChevronRight className="w-5 h-5" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <Button variant="ghost" size="icon" onClick={nextWeek} className="neon-glow">
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </motion.div>
           </div>
 
           {/* Days of week */}
@@ -73,7 +113,7 @@ export const ClassesSection = ({ isAdmin = false }: ClassesSectionProps) => {
               const isToday = isSameDay(day, today);
 
               return (
-                <button
+                <motion.button
                   key={index}
                   onClick={() => setSelectedDay(day)}
                   className={`p-3 rounded-xl text-center transition-all duration-300 ${
@@ -83,95 +123,146 @@ export const ClassesSection = ({ isAdmin = false }: ClassesSectionProps) => {
                       ? "bg-muted ring-2 ring-primary"
                       : "hover:bg-muted"
                   }`}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{
+                    boxShadow: isSelected
+                      ? "0 0 20px hsla(145, 80%, 45%, 0.4)"
+                      : "none",
+                  }}
                 >
                   <div className="text-xs uppercase font-medium opacity-70">
                     {format(day, "EEE", { locale: es })}
                   </div>
                   <div className="text-lg font-bold">{format(day, "d")}</div>
-                </button>
+                </motion.button>
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Classes List */}
-        <div className="space-y-4">
-          <h3 className="font-display text-2xl font-bold mb-6">
-            Clases del {format(selectedDay, "EEEE d 'de' MMMM", { locale: es })}
-          </h3>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedDay.toISOString()}
+            className="space-y-4"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="font-display text-2xl font-bold mb-6">
+              Clases del {format(selectedDay, "EEEE d 'de' MMMM", { locale: es })}
+            </h3>
 
-          {classesForDay.length === 0 ? (
-            <div className="glass-card rounded-2xl p-12 text-center">
-              <p className="text-muted-foreground text-lg">No hay clases programadas para este día</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              {classesForDay.map((cls, index) => {
-                const isFull = cls.enrolled >= cls.capacity;
-                const fillPercentage = (cls.enrolled / cls.capacity) * 100;
+            {classesForDay.length === 0 ? (
+              <motion.div
+                className="glass-card rounded-2xl p-12 text-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <p className="text-muted-foreground text-lg">No hay clases programadas para este día</p>
+              </motion.div>
+            ) : (
+              <motion.div
+                className="grid md:grid-cols-2 gap-4"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {classesForDay.map((cls) => {
+                  const isFull = cls.enrolled >= cls.capacity;
+                  const fillPercentage = (cls.enrolled / cls.capacity) * 100;
 
-                return (
-                  <div
-                    key={cls.id}
-                    className="glass-card rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300 animate-fade-in-up"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h4 className="font-display text-xl font-bold mb-1">{cls.name}</h4>
-                        <p className="text-sm text-muted-foreground">con {cls.instructor}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-display text-2xl font-bold gradient-text">{cls.time}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {cls.duration} min
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {cls.room}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {cls.enrolled}/{cls.capacity}
-                      </div>
-                    </div>
-
-                    {/* Capacity bar */}
-                    <div className="mb-4">
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            fillPercentage >= 90 ? "bg-destructive" : "gradient-bg"
-                          }`}
-                          style={{ width: `${fillPercentage}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {isAdmin ? (
-                      <Button variant="outline" className="w-full">
-                        Editar Clase
-                      </Button>
-                    ) : (
-                      <Button
-                        variant={isFull ? "outline" : "hero"}
-                        className="w-full"
-                        disabled={isFull}
+                  return (
+                    <motion.div key={cls.id} variants={itemVariants}>
+                      <GlowingCard
+                        className="glass-card rounded-2xl p-6"
+                        glowColor={isFull ? "secondary" : "primary"}
+                        intensity="subtle"
                       >
-                        {isFull ? "Clase Llena" : "Reservar"}
-                      </Button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h4 className="font-display text-xl font-bold mb-1 neon-text-glow">
+                              {cls.name}
+                            </h4>
+                            <p className="text-sm text-muted-foreground">con {cls.instructor}</p>
+                          </div>
+                          <motion.div
+                            className="text-right"
+                            animate={{
+                              textShadow: [
+                                "0 0 5px hsla(145, 80%, 45%, 0.3)",
+                                "0 0 15px hsla(145, 80%, 45%, 0.5)",
+                                "0 0 5px hsla(145, 80%, 45%, 0.3)",
+                              ],
+                            }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            <div className="font-display text-2xl font-bold gradient-text">
+                              {cls.time}
+                            </div>
+                          </motion.div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {cls.duration} min
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            {cls.room}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            {cls.enrolled}/{cls.capacity}
+                          </div>
+                        </div>
+
+                        {/* Capacity bar with neon glow */}
+                        <div className="mb-4">
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <motion.div
+                              className={`h-full rounded-full ${
+                                fillPercentage >= 90 ? "bg-destructive" : "gradient-bg"
+                              }`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${fillPercentage}%` }}
+                              transition={{ duration: 0.8, ease: "easeOut" }}
+                              style={{
+                                boxShadow:
+                                  fillPercentage >= 90
+                                    ? "0 0 10px hsla(0, 84%, 60%, 0.5)"
+                                    : "0 0 10px hsla(145, 80%, 45%, 0.5)",
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          {isAdmin ? (
+                            <Button variant="outline" className="w-full neon-border">
+                              Editar Clase
+                            </Button>
+                          ) : (
+                            <Button
+                              variant={isFull ? "outline" : "hero"}
+                              className={`w-full ${!isFull ? "neon-glow" : ""}`}
+                              disabled={isFull}
+                            >
+                              {isFull ? "Clase Llena" : "Reservar"}
+                            </Button>
+                          )}
+                        </motion.div>
+                      </GlowingCard>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </section>
   );
