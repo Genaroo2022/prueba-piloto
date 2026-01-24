@@ -7,6 +7,7 @@ import { RoutinesSection } from "@/components/sections/RoutinesSection";
 import { ProgressSection } from "@/components/sections/ProgressSection";
 import { Footer } from "@/components/layout/Footer";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { NeonCursor } from "@/components/effects/NeonCursor";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
@@ -82,7 +83,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      {/* Neon cursor effect - desktop only */}
+      <NeonCursor />
+      
       <Navbar
         currentSection={currentSection}
         onNavigate={handleNavigate}
